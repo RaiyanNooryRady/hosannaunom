@@ -13,4 +13,4 @@ add_action('wp_enqueue_scripts', 'child_enqueue_files', 20);
 // require files
 require_once get_stylesheet_directory() . '/inc/meal-prep.php';
 require_once get_stylesheet_directory() . '/inc/cleaning.php';
-
+require_once get_stylesheet_directory() . '/inc/booking.php';

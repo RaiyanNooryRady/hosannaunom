@@ -1,83 +1,70 @@
-<?php 
-
-add_action('woocommerce_before_add_to_cart_button', 'custom_laundry_service_datepicker');
-
-function custom_laundry_service_datepicker() {
-    global $product;
-    $price_per_day = get_post_meta($product->get_id(), '_price_per_day', true);
-?>
-    <div style="margin-top:10px; margin-bottom:10px;">
-        <label for="service_date">Select Duration:</label>
-        <input type="text" id="service_date" name="service_date" class="datepicker" required>
-    </div>
-    <p id="date_duration" style="margin-top: 10px; font-weight: bold; color: #333;"></p>
-    <p>Price Per Day: <strong>$<span id="price_per_day_display"><?php echo $price_per_day; ?></span></strong></p>
-    <p>Total Price: <strong><span id="calculated_price">$0.00</span></strong></p>
-
-    <input type="hidden" id="price_per_day" value="<?php echo $price_per_day; ?>">
-    <input type="hidden" id="total_price" name="total_price" value="0">
 <?php
-}
+// Add Date Picker to WooCommerce Product Page
+function add_booking_calendar_field() {
+    global $product;
 
-add_filter('woocommerce_add_cart_item_data', 'save_custom_price_in_cart', 10, 2);
-function save_custom_price_in_cart($cart_item_data, $product_id) {
-    if (!empty($_POST['service_date']) && !empty($_POST['total_price'])) {
-        $cart_item_data['service_date'] = sanitize_text_field($_POST['service_date']);
-        $cart_item_data['custom_price'] = floatval($_POST['total_price']); 
-    }
-    return $cart_item_data;
-}
-
-// Update cart total dynamically
-add_action('woocommerce_before_calculate_totals', 'set_custom_cart_price');
-function set_custom_cart_price($cart) {
-    if (is_admin() && !defined('DOING_AJAX')) return;
-    
-    foreach ($cart->get_cart() as $cart_item) {
-        if (isset($cart_item['custom_price']) && !empty($cart_item['custom_price'])) {
-            $cart_item['data']->set_price($cart_item['custom_price']);
-        }
+    if ($product->is_type('simple')) { // Apply only to simple products
+        echo '<div class="woocommerce-booking-calendar"><br>
+				<label for="booking_type">Select a Booking Type</label><br><br>
+				<select id="booking_type" name="booking_type"><br>
+					<option value="one_time">One Time</option>
+					<option value="weekly">Weekly</option>
+					<option value="monthly">Monthly</option>
+				</select><br><br>
+                <label for="booking_date">Select a Booking Date:</label><br><br>
+                <input type="date" id="booking_date" name="booking_date" required><br>
+              <br>';
     }
 }
+add_action('woocommerce_before_add_to_cart_button', 'add_booking_calendar_field');
 
-add_filter('woocommerce_get_item_data', 'display_custom_price_in_cart', 10, 2);
-function display_custom_price_in_cart($item_data, $cart_item) {
-    if (!empty($cart_item['service_date'])) {
-        $item_data[] = array(
-            'name' => 'Service Duration',
-            'value' => esc_html($cart_item['service_date'])
-        );
-    }
-    if (!empty($cart_item['custom_price'])) {
-        $item_data[] = array(
-            'name' => 'Total Price',
-            'value' => '$' . number_format($cart_item['custom_price'], 2)
-        );
-    }
-    return $item_data;
+function add_booking_calendar_field2() {
+  global $product;
+  echo '<br><br><br>';
 }
+add_action('woocommerce_after_add_to_cart_button', 'add_booking_calendar_field2');
 
-
-//admin
-add_action('woocommerce_product_options_pricing', 'add_price_per_day_field');
-function add_price_per_day_field() {
-    woocommerce_wp_text_input(array(
-        'id' => '_price_per_day',
-        'label' => __('Price Per Day', 'woocommerce'),
-        'desc_tip' => 'true',
-        'description' => __('Enter the price per day for this service.', 'woocommerce'),
-        'type' => 'number',
-        'custom_attributes' => array(
-            'step' => '0.01',
-            'min' => '0'
-        )
-    ));
+function save_booking_date_to_cart($cart_item_data, $product_id) {
+  if (!empty($_POST['booking_date']) && !empty($_POST['booking_type'])) {
+      $cart_item_data['booking_date'] = sanitize_text_field($_POST['booking_date']);
+      $cart_item_data['booking_type'] = sanitize_text_field($_POST['booking_type']);
+  }
+  return $cart_item_data;
 }
+add_filter('woocommerce_add_cart_item_data', 'save_booking_date_to_cart', 10, 2);
 
-// Save the "Price Per Day" value when the product is updated
-add_action('woocommerce_admin_process_product_object', 'save_price_per_day_field');
-function save_price_per_day_field($product) {
-    if (isset($_POST['_price_per_day'])) {
-        $product->update_meta_data('_price_per_day', sanitize_text_field($_POST['_price_per_day']));
-    }
+// Display Booking Date in Cart
+function display_booking_date_in_cart($item_data, $cart_item) {
+  if (!empty($cart_item['booking_date'] && !empty($cart_item['booking_type']))) {
+      $item_data[] = array(
+          'name'  => 'Booking Date',
+          'value' => esc_html($cart_item['booking_date']),
+      );
+      $item_data[] = array(
+        'name'  => 'Booking Type',
+        'value' => esc_html($cart_item['booking_type'])
+    );
+  }
+  return $item_data;
 }
+add_filter('woocommerce_get_item_data', 'display_booking_date_in_cart', 10, 2);
+
+// Save Booking Date in Order
+function save_booking_date_to_order($item, $cart_item_key, $values, $order) {
+  if (!empty($values['booking_date']) && !empty($values['booking_type'])) {
+      $item->add_meta_data('Booking Date', $values['booking_date'], true);
+      $item->add_meta_data('Booking Type', $values['booking_type'], true);
+  }
+}
+add_action('woocommerce_checkout_create_order_line_item', 'save_booking_date_to_order', 10, 4);
+
+// Display Booking Date in WooCommerce Admin Order Details
+function display_booking_date_in_admin_order($item_id, $item, $order) {
+  $booking_date = $item->get_meta('Booking Date');
+  $booking_type = $item->get_meta('Booking Type');
+  if (!empty($booking_date)&& !empty($booking_type)) {
+      echo '<p><strong>Booking Date:</strong> ' . esc_html($booking_date) . '</p>';
+      echo '<p><strong>Booking Type:</strong> ' . esc_html($booking_type) . '</p>';
+  }
+}
+add_action('woocommerce_after_order_itemmeta', 'display_booking_date_in_admin_order', 10, 3);
