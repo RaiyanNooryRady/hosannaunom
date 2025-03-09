@@ -1,0 +1,19 @@
+/*
+Theme Name: Astra Child
+Theme URI: https://wpastra.com/
+Description: Child theme for Astra
+Author: Your Name
+Author URI: Your Website
+Template: astra
+Version: 1.0.0
+*/
+
+.product-addons {
+    padding: 15px;
+    background: #ffd97436;
+    border-radius: 5px;
+    margin: 15px 0;
+}
+.product-addons h5 {
+    margin-bottom: 15px;
+}
