@@ -4,7 +4,7 @@ add_action('woocommerce_before_add_to_cart_button', 'custom_meal_prep_intake_for
 function custom_meal_prep_intake_form() {
     global $product;
     
-    if (has_term('meal-prep', 'product_cat', $product->get_id())) { ?>
+    if (has_term('customization', 'product_cat', $product->get_id())) { ?>
         <div id="meal-prep-intake-form">
             <h4>Meal Prep Intake Form</h4>
             <label for="meal_quantity">Meal Quantity (auto price adjuster):</label>
