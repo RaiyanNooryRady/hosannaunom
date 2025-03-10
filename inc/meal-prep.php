@@ -7,7 +7,6 @@ function custom_meal_prep_intake_form() {
     if (has_term('meal-prep', 'product_cat', $product->get_id())) { ?>
         <div id="meal-prep-intake-form">
             <h4>Meal Prep Intake Form</h4>
-
             <label for="meal_quantity">Meal Quantity (auto price adjuster):</label>
             <input type="number" name="meal_quantity" id="meal_quantity" min="1" value="1"><br><br>
 

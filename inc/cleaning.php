@@ -1,75 +1,122 @@
 <?php
 // Display custom intake form for Cleaning category
 add_action('woocommerce_before_add_to_cart_button', 'custom_cleaning_intake_form');
-function custom_cleaning_intake_form() {
+function custom_cleaning_intake_form()
+{
     global $product;
-    
-    if (has_term('cleaning', 'product_cat', $product->get_id())) { ?>
+
+    if (has_term('customization', 'product_cat', $product->get_id())) { ?>
         <div id="cleaning-intake-form">
-            <h4>Cleaning Intake Form</h4>
+            <div id="cleaning-or-laundry">
+                <label>
+                    <input type="checkbox" name="cleaning" value="Cleaning" onclick="checkCheckbox();">
+                    Cleaning
+                </label>
+                <label>
+                    <input type="checkbox" name="laundry" value="laundry" onclick="checkCheckbox();">
+                    Laundry
+                </label>
+            </div>
 
-            <label for="number_of_bedrooms">Number of Bedrooms</label>
-            <input type="number" name="number_of_bedrooms" id="number_of_bedrooms" min="1" value="1"><br><br>
+            <div id="astra-child-cleaning-form">
 
-            <label for="number_of_bathrooms">Number of Bathrooms</label>
-            <input type="number" name="number_of_bathrooms" id="number_of_bathrooms" min="1" value="1"><br><br>
+                <h4>Cleaning Intake Form</h4>
+                <label for="number_of_bedrooms">Number of Bedrooms</label>
+                <input type="number" name="number_of_bedrooms" id="number_of_bedrooms" min="1" value="1"><br><br>
 
-            <fieldset>
-                <legend>Areas of Focus:</legend>
-                <label><input type="checkbox" name="areas_of_focus[]" value="Kitchen Deep Clean"> Kitchen Deep Clean ($2)</label><br>
-                <label><input type="checkbox" name="areas_of_focus[]" value="Windows"> Windows ($2)</label><br>
-                <label><input type="checkbox" name="areas_of_focus[]" value="Living Room"> Living Room ($2)</label><br>
-                <label><input type="checkbox" name="areas_of_focus[]" value="Floors"> Floors ($2)</label><br>
-            </fieldset><br>
+                <label for="number_of_bathrooms">Number of Bathrooms</label>
+                <input type="number" name="number_of_bathrooms" id="number_of_bathrooms" min="1" value="1"><br><br>
 
-            <label for="pet_considerations">Pet Considerations (Yes/No):</label>
-            <select name="pet_considerations" id="pet_considerations">
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-            </select><br><br>
+                <fieldset>
+                    <legend>Areas of Focus:</legend>
+                    <label><input type="checkbox" name="areas_of_focus[]" value="Kitchen Deep Clean"> Kitchen Deep Clean
+                        ($2)</label><br>
+                    <label><input type="checkbox" name="areas_of_focus[]" value="Windows"> Windows ($2)</label><br>
+                    <label><input type="checkbox" name="areas_of_focus[]" value="Living Room"> Living Room ($2)</label><br>
+                    <label><input type="checkbox" name="areas_of_focus[]" value="Floors"> Floors ($2)</label><br>
+                </fieldset><br>
 
-            <label for="pet_details">Pet Details (if Yes):</label>
-            <input type="text" name="pet_details" id="pet_details" placeholder="Enter pet details"><br><br>
+                <label for="pet_considerations">Pet Considerations (Yes/No):</label>
+                <select name="pet_considerations" id="pet_considerations">
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
+                </select><br><br>
 
-            <label for="preferred_cleaning_time">Preferred Cleaning Time</label>
-            <select name="preferred_cleaning_time" id="preferred_cleaning_time">
-                <option value="standard" data-price="0">Standard (No Extra Cost)</option>
-                <option value="morning" data-price="10">Morning (+$10)</option>
-                <option value="evening" data-price="15">Evening (+$15)</option>
-            </select><br><br>
+                <label for="pet_details">Pet Details (if Yes):</label>
+                <input type="text" name="pet_details" id="pet_details" placeholder="Enter pet details"><br><br>
+
+                <label for="preferred_cleaning_time">Preferred Cleaning Time</label>
+                <select name="preferred_cleaning_time" id="preferred_cleaning_time">
+                    <option value="standard" data-price="0">Standard (No Extra Cost)</option>
+                    <option value="morning" data-price="10">Morning (+$10)</option>
+                    <option value="evening" data-price="15">Evening (+$15)</option>
+                </select><br><br>
+
+            </div>
+            <div id="astra-child-laundry-form">
+                <h4>Laundry Form</h4>
+                <label for="number_of_cloths">Number of Cloths</label>
+                <input type="number" name="number_of_cloths" min="0" max="100">
+            </div>
+
 
             <form class="cart" method="post" enctype="multipart/form-data">
-                <button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo esc_attr($product->get_id()); ?>">
+                <button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart"
+                    value="<?php echo esc_attr($product->get_id()); ?>">
                     <?php echo esc_html($product->single_add_to_cart_text()); ?>
                 </button>
             </form>
         </div>
 
         <script>
-        jQuery(document).ready(function($) {
-            function updatePrice() {
-                var base_price = <?php echo $product->get_price(); ?>;
-                var bedrooms = parseInt($('#number_of_bedrooms').val()) || 1;
-                var bathrooms = parseInt($('#number_of_bathrooms').val()) || 1;
-                var areas_of_focus_price = 0;
+            function checkCheckbox() {
+                    let checkBoxCleaning = document.querySelector('input[name="cleaning"]');
+                    if (checkBoxCleaning.checked) {
+                        document.getElementById('astra-child-cleaning-form').style.display = 'block';
+                    } else {
+                        document.getElementById('astra-child-cleaning-form').style.display = 'none';
+                    }
+                    let checkBoxLaundry = document.querySelector('input[name="laundry"]');
+                    if (checkBoxLaundry.checked) {
+                        document.getElementById('astra-child-laundry-form').style.display = 'block';
+                    } else {
+                        document.getElementById('astra-child-laundry-form').style.display = 'none';
+                    }
+                }
 
-                $('input[name="areas_of_focus[]"]:checked').each(function() {
-                    areas_of_focus_price += 2; 
-                });
+            jQuery(document).ready(function ($) {
+                function updatePrice() {
+                    var base_price = <?php echo $product->get_price(); ?>;
+                    var bedrooms = parseInt($('#number_of_bedrooms').val()) || 1;
+                    var bathrooms = parseInt($('#number_of_bathrooms').val()) || 1;
+                    var areas_of_focus_price = 0;
 
-                var pet_price = $('#pet_considerations').val() === 'yes' ? 5 : 0;
-                var cleaning_time_price = parseFloat($('#preferred_cleaning_time option:selected').data('price')) || 0;
-                
-                var new_price = base_price + (bedrooms * 1) + (bathrooms * 1) + areas_of_focus_price + pet_price + cleaning_time_price;
+                    $('input[name="areas_of_focus[]"]:checked').each(function () {
+                        areas_of_focus_price += 2;
+                    });
 
-                $('.woocommerce-Price-amount').text('$' + new_price.toFixed(2));
-            }
+                    var pet_price = $('#pet_considerations').val() === 'yes' ? 5 : 0;
+                    var cleaning_time_price = parseFloat($('#preferred_cleaning_time option:selected').data('price')) || 0;
 
-            $('#number_of_bedrooms, #number_of_bathrooms, input[name="areas_of_focus[]"], #pet_considerations, #preferred_cleaning_time').on('change', updatePrice);
-        });
+                    var new_price = base_price + (bedrooms * 1) + (bathrooms * 1) + areas_of_focus_price + pet_price + cleaning_time_price;
+
+                    $('.woocommerce-Price-amount').text('$' + new_price.toFixed(2));
+                }
+
+                $('#number_of_bedrooms, #number_of_bathrooms, input[name="areas_of_focus[]"], #pet_considerations, #preferred_cleaning_time').on('change', updatePrice);
+            });
         </script>
 
         <style>
+            #cleaning-or-laundry {
+                display: block;
+            }
+
+            #astra-child-cleaning-form,
+            #astra-child-laundry-form {
+                display: none;
+            }
+
             #cleaning-intake-form {
                 padding: 12px;
                 border: 1px solid #eee;
@@ -78,21 +125,26 @@ function custom_cleaning_intake_form() {
                 box-shadow: 0 0 5px #eee;
                 overflow: hidden;
             }
+
             fieldset {
                 border: none;
                 padding: 0;
                 margin: 0;
             }
+
             legend {
                 font-weight: bold;
             }
+
             label {
                 cursor: pointer;
             }
+
             .quantity {
                 display: none;
             }
-            .quantity + button.single_add_to_cart_button {
+
+            .quantity+button.single_add_to_cart_button {
                 display: none;
             }
         </style>
@@ -101,7 +153,8 @@ function custom_cleaning_intake_form() {
 
 // Save form data to cart
 add_filter('woocommerce_add_cart_item_data', 'save_cleaning_intake_form_data', 10, 2);
-function save_cleaning_intake_form_data($cart_item_data, $product_id) {
+function save_cleaning_intake_form_data($cart_item_data, $product_id)
+{
     if (isset($_POST['number_of_bedrooms'])) {
         $cart_item_data['number_of_bedrooms'] = intval($_POST['number_of_bedrooms']);
     }
@@ -126,7 +179,8 @@ function save_cleaning_intake_form_data($cart_item_data, $product_id) {
 
 // Display form data in cart and checkout
 add_filter('woocommerce_get_item_data', 'display_cleaning_intake_form_data', 10, 2);
-function display_cleaning_intake_form_data($item_data, $cart_item) {
+function display_cleaning_intake_form_data($item_data, $cart_item)
+{
     if (!empty($cart_item['number_of_bedrooms'])) {
         $item_data[] = ['name' => 'Number of Bedrooms', 'value' => $cart_item['number_of_bedrooms']];
     }
@@ -150,8 +204,10 @@ function display_cleaning_intake_form_data($item_data, $cart_item) {
 
 // Modify cart item price dynamically
 add_action('woocommerce_before_calculate_totals', 'update_cleaning_cart_price');
-function update_cleaning_cart_price($cart) {
-    if (is_admin() && !defined('DOING_AJAX')) return;
+function update_cleaning_cart_price($cart)
+{
+    if (is_admin() && !defined('DOING_AJAX'))
+        return;
 
     foreach ($cart->get_cart() as $cart_item) {
         $base_price = $cart_item['data']->get_price();
