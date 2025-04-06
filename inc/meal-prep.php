@@ -38,11 +38,11 @@ function custom_meal_prep_intake_form() {
                 <option value="evening" data-price="8">Evening (+$8)</option>
             </select><br><br>
 
-            <form class="cart" method="post" enctype="multipart/form-data">
+            <!-- <form class="cart" method="post" enctype="multipart/form-data">
                 <button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo esc_attr($product->get_id()); ?>">
                     <?php echo esc_html($product->single_add_to_cart_text()); ?>
                 </button>
-            </form>
+            </form> -->
         </div>
 
         <script>

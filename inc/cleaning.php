@@ -55,8 +55,8 @@ function custom_cleaning_intake_form()
             </div>
             <div id="astra-child-laundry-form">
                 <h4>Laundry Form</h4>
-                <label for="number_of_cloths">Number of Cloths</label>
-                <input type="number" name="number_of_cloths" min="0" max="100">
+                <label for="load_size">Load Size</label>
+                <input type="number" name="load_size" min="0" max="100"> <br><br>
             </div>
 
 
