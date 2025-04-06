@@ -38,8 +38,8 @@ function custom_cleaning_intake_form()
 
                 <label for="pet_considerations">Pet Considerations (Yes/No):</label>
                 <select name="pet_considerations" id="pet_considerations">
-                    <option value="no">No</option>
-                    <option value="yes">Yes</option>
+                    <option value="no">No (No Extra Cost)</option>
+                    <option value="yes">Yes (+$5)</option>
                 </select><br><br>
 
                 <label for="pet_details">Pet Details (if Yes):</label>
@@ -57,10 +57,18 @@ function custom_cleaning_intake_form()
                 <h4>Laundry Form</h4>
                 <label for="number_of_cloths">Load Size:</label>
                 <input type="number" name="number_of_cloths" min="0" max="100" placeholder="Indicate your typical load size"> <br> <br>
+
 				<label for="special_instructions">Special Instructions:</label>
                 <input type="text" name="special_instructions" placeholder="Any special handling for delicates, detergent preferences, or folding instructions?"> <br><br>
+
+                <label for="dry_cleaning">Would you like to add dry cleaning service? (Additional cost applies.)</label>
+                <select name="dry_cleaning" id="dry_cleaning">
+                    <option value="no">No(No Extra Cost)</option>
+                    <option value="yes">Yes(+$10)</option>
+                </select><br><br>
+
 				<label for="picup_or_drop_off_instructions">Pick-up/Drop-off Instructions:</label>
-                <input type="text" name="picup_or_drop_off_instructions" placeholder="Provide details for efficient service.">
+                <input type="text" name="picup_or_drop_off_instructions" placeholder="Provide details for efficient service."> <br><br>
             </div>
 
 
@@ -102,12 +110,14 @@ function custom_cleaning_intake_form()
                     var pet_price = $('#pet_considerations').val() === 'yes' ? 5 : 0;
                     var cleaning_time_price = parseFloat($('#preferred_cleaning_time option:selected').data('price')) || 0;
 
-                    var new_price = base_price + (bedrooms * 1) + (bathrooms * 1) + areas_of_focus_price + pet_price + cleaning_time_price;
+                    let dry_cleaning_price = $('#dry_cleaning').val()==='yes' ? 10 : 0;
+
+                    var new_price = base_price + (bedrooms * 1) + (bathrooms * 1) + areas_of_focus_price + pet_price + dry_cleaning_price + cleaning_time_price;
 
                     $('.woocommerce-Price-amount').text('$' + new_price.toFixed(2));
                 }
 
-                $('#number_of_bedrooms, #number_of_bathrooms, input[name="areas_of_focus[]"], #pet_considerations, #preferred_cleaning_time').on('change', updatePrice);
+                $('#number_of_bedrooms, #number_of_bathrooms, input[name="areas_of_focus[]"], #pet_considerations, #dry_cleaning, #preferred_cleaning_time').on('change', updatePrice);
             });
         </script>
 
@@ -155,7 +165,7 @@ function custom_cleaning_intake_form()
     <?php }
 }
 
-// Save form data to cart
+// Save cleaning form data to cart
 add_filter('woocommerce_add_cart_item_data', 'save_cleaning_intake_form_data', 10, 2);
 function save_cleaning_intake_form_data($cart_item_data, $product_id)
 {
@@ -178,8 +188,18 @@ function save_cleaning_intake_form_data($cart_item_data, $product_id)
         $cart_item_data['preferred_cleaning_time'] = sanitize_text_field($_POST['preferred_cleaning_time']);
         $cart_item_data['cleaning_time_price'] = ($_POST['preferred_cleaning_time'] == 'morning') ? 10 : (($_POST['preferred_cleaning_time'] == 'evening') ? 15 : 0);
     }
+
+    //for laundry form
+
+    if(!empty($_POST['dry_cleaning'])){
+        $cart_item_data['dry_cleaning']=$_POST['dry_cleaning'];
+    }
+
+    //end laundry form
+
     return $cart_item_data;
 }
+
 
 // Display form data in cart and checkout
 add_filter('woocommerce_get_item_data', 'display_cleaning_intake_form_data', 10, 2);
@@ -203,6 +223,15 @@ function display_cleaning_intake_form_data($item_data, $cart_item)
     if (!empty($cart_item['preferred_cleaning_time'])) {
         $item_data[] = ['name' => 'Preferred Cleaning Time', 'value' => ucfirst($cart_item['preferred_cleaning_time']) . ' (+$' . $cart_item['cleaning_time_price'] . ')'];
     }
+
+    //for laundry form
+
+    if (!empty($cart_item['dry_cleaning'])) {
+        $item_data[] = ['name' => 'Dry Cleaning Service', 'value' => ucfirst($cart_item['dry_cleaning'])];
+    }
+
+    //end for laundry form
+
     return $item_data;
 }
 
@@ -221,7 +250,11 @@ function update_cleaning_cart_price($cart)
         $pet_price = $cart_item['pet_considerations'] === 'yes' ? 5 : 0;
         $cleaning_time_price = $cart_item['cleaning_time_price'] ?? 0;
 
-        $new_price = $base_price + ($bedrooms * 20) + ($bathrooms * 15) + $areas_of_focus_price + $pet_price + $cleaning_time_price;
+        //for laundry form
+        $dry_cleaning_price = $cart_item['dry_cleaning']==='yes'?10:0;
+
+
+        $new_price = $base_price + ($bedrooms * 20) + ($bathrooms * 15) + $areas_of_focus_price + $pet_price + $dry_cleaning_price + $cleaning_time_price;
         $cart_item['data']->set_price($new_price);
     }
 }
